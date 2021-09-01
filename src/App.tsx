@@ -1,19 +1,7 @@
-import { Redirect, Route } from 'react-router-dom';
 import {
-  IonApp,
-  IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs,
+  IonApp, IonIcon, IonButton, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonRow, IonTitle, IonToolbar, IonCard, IonCardTitle, IonCardContent, IonAlert
 } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
-
+import { calculatorOutline, refreshOutline } from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -32,42 +20,86 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import { useEffect, useState } from 'react';
 
-const App: React.FC = () => (
+const App: React.FC = () => {
+  const [dimensions, setDimensions] = useState({height: '', weight: ''});
+  const [BMI, setBMI] = useState(0);
+  const [cardValue, setCardValue] = useState(0);
+  const [error, setError] = useState('');
+  const calcBMI = () => {
+    if (typeof(dimensions.height)!='number' || typeof(dimensions.weight)!='number')
+    setError("Please enter number values in the fields")
+    setError('')
+    setCardValue(BMI)
+    
+  }
+
+  const resetFields = () => {
+    setDimensions({height: '', weight: ''})
+  }
+
+  useEffect(()=>{setBMI(+dimensions.weight/((+dimensions.height)*(+dimensions.height)))},[dimensions])
+
+  return (
   <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route exact path="/tab1">
-            <Tab1 />
-          </Route>
-          <Route exact path="/tab2">
-            <Tab2 />
-          </Route>
-          <Route path="/tab3">
-            <Tab3 />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/tab1" />
-          </Route>
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon icon={triangle} />
-            <IonLabel>Tab 1</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab3" href="/tab3">
-            <IonIcon icon={square} />
-            <IonLabel>Tab 3</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
+    <IonAlert isOpen={!!error} message={error} buttons={[{text: "Ok", handler: () => setError("")}]} />
+    <IonHeader>
+      <IonToolbar>
+        <IonTitle>BMI Calculator</IonTitle>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent className="ion-padding">
+      
+      
+            <IonItem>
+              <IonLabel position="floating">
+                WEIGHT
+              </IonLabel>
+              <IonInput value={dimensions.weight} onIonChange = {(e)=>{setDimensions({...dimensions, weight: e.detail.value!})}}>
+              </IonInput>
+            </IonItem>
+          
+        
+            <IonItem>
+              <IonLabel position="floating">
+                HEIGHT
+              </IonLabel>
+              <IonInput value={dimensions.height} onIonChange = {(e)=>{setDimensions({...dimensions, height: e.detail.value!})}}>
+              </IonInput>
+            </IonItem>
+         
+        <IonGrid>
+        <IonRow>
+          <IonCol><IonButton  expand ="block" onClick={calcBMI}><IonIcon slot="start" icon={calculatorOutline} />Calculate</IonButton></IonCol>
+          <IonCol><IonButton expand ="block" onClick={resetFields}><IonIcon slot="start" icon={refreshOutline} />Reset</IonButton></IonCol>
+        </IonRow>  
+        {
+          cardValue ? (
+            
+              <IonCard>
+                <IonCardTitle className="ion-padding"> BMI </IonCardTitle>
+                <IonCardContent>{BMI}</IonCardContent>
+              </IonCard>
+            
+          ) : null
+        }
+      <IonRow>
+      <IonItem>
+              <IonCard>
+                <IonCardTitle className="ion-padding"> Please Note </IonCardTitle>
+                <IonCardContent>The disadvantage of BMI is that it doesn't account for body composition. This means that if you're very lean or muscular, your BMI results may not provide an accurate picture of your general health.</IonCardContent>
+              </IonCard>
+      </IonItem>
+      </IonRow>
+        </IonGrid>
+          
+            
+            
+        
+    </IonContent>
   </IonApp>
 );
+}
 
 export default App;
